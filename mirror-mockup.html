@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#08080C">
+<title>MIRROR — Personal Styling</title>
+<style>
+:root{
+  --bg:#08080C;
+  --bg2:#0E0E15;
+  --ink:#F2F2F5;
+  --ink-2:rgba(242,242,245,.62);
+  --ink-3:rgba(242,242,245,.38);
+  --line:rgba(255,255,255,.09);
+  --glass:rgba(255,255,255,.055);
+  --glass-2:rgba(255,255,255,.09);
+  --accent:#D98E5F;
+  --accent-2:#8C6A4A;
+  --accent-ink:#1A0F08;
+  --r:22px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  font-feature-settings:"palt";
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:.01em;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(60% 40% at 15% 5%, color-mix(in srgb,var(--accent) 22%, transparent), transparent 70%),
+    radial-gradient(50% 35% at 90% 20%, rgba(90,110,200,.16), transparent 70%),
+    radial-gradient(70% 50% at 50% 105%, color-mix(in srgb,var(--accent-2) 18%, transparent), transparent 70%);
+  transition:background .8s ease;
+}
+#app{position:relative;height:100%;width:100%;overflow:hidden;z-index:1}
+
+/* ---------- screens ---------- */
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  transform:translateX(100%);opacity:0;visibility:hidden;
+  transition:transform .42s cubic-bezier(.32,.72,0,1),opacity .3s ease,visibility .42s;
+  will-change:transform;
+}
+.screen.active{transform:translateX(0);opacity:1;visibility:visible}
+.screen.behind{transform:translateX(-24%);opacity:.35;visibility:visible}
+.body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 18px 130px;scrollbar-width:none}
+.body::-webkit-scrollbar{display:none}
+
+/* ---------- header ---------- */
+.hd{
+  padding:calc(var(--safe-t) + 14px) 18px 12px;
+  display:flex;align-items:center;gap:12px;flex-shrink:0;
+}
+.hd h1{font-size:19px;font-weight:700;letter-spacing:.02em}
+.hd .sub{font-size:11px;color:var(--ink-3);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.iconbtn{
+  width:36px;height:36px;border-radius:12px;border:1px solid var(--line);
+  background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  color:var(--ink);display:grid;place-items:center;font-size:15px;flex-shrink:0;
+  transition:transform .15s,background .2s;
+}
+.iconbtn:active{transform:scale(.9);background:var(--glass-2)}
+.sp{flex:1}
+
+/* ---------- glass ---------- */
+.glass{
+  background:var(--glass);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+  border:1px solid var(--line);
+  border-radius:var(--r);
+  position:relative;overflow:hidden;
+}
+.glass::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(155deg,rgba(255,255,255,.13),transparent 42%);
+}
+
+/* ---------- bento ---------- */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.b-wide{grid-column:1/-1}
+.card{padding:16px}
+.card .lbl{font-size:10px;letter-spacing:.13em;color:var(--ink-3);text-transform:uppercase;font-weight:700;margin-bottom:7px}
+.card .val{font-size:20px;font-weight:700;line-height:1.25;letter-spacing:.01em}
+.card .val small{display:block;font-size:11px;font-weight:500;color:var(--ink-2);margin-top:5px;letter-spacing:0}
+
+/* ---------- tab bar ---------- */
+.tabbar{
+  position:absolute;left:12px;right:12px;bottom:calc(var(--safe-b) + 12px);
+  height:64px;border-radius:24px;display:flex;align-items:center;padding:0 6px;
+  background:rgba(16,16,22,.72);
+  backdrop-filter:blur(34px) saturate(180%);-webkit-backdrop-filter:blur(34px) saturate(180%);
+  border:1px solid rgba(255,255,255,.11);
+  box-shadow:0 18px 44px rgba(0,0,0,.55);
+  z-index:60;transition:transform .35s cubic-bezier(.32,.72,0,1),opacity .25s;
+}
+.tabbar.hide{transform:translateY(140%);opacity:0;pointer-events:none}
+.tab{flex:1;height:52px;border:0;background:transparent;color:var(--ink-3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  font-size:9.5px;font-weight:700;letter-spacing:.04em;border-radius:18px;transition:color .2s}
+.tab .ic{font-size:17px;line-height:1;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.tab.on{color:var(--accent)}
+.tab.on .ic{transform:translateY(-2px) scale(1.12)}
+
+/* ---------- buttons ---------- */
+.btn{
+  width:100%;padding:16px;border-radius:17px;border:0;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));color:var(--accent-ink);
+  transition:transform .15s,filter .2s;font-family:inherit;letter-spacing:.02em;
+  box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 26%, transparent);
+}
+.btn:active{transform:scale(.975);filter:brightness(1.1)}
+.btn.ghost{background:var(--glass);color:var(--ink);border:1px solid var(--line);box-shadow:none}
+.btn.sm{padding:12px;font-size:13.5px;border-radius:14px}
+
+/* ---------- chips ---------- */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 18px 2px;margin:0 -18px 14px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;padding:9px 15px;border-radius:13px;font-size:12.5px;font-weight:600;
+  background:var(--glass);border:1px solid var(--line);color:var(--ink-2);
+  transition:all .22s;font-family:inherit;white-space:nowrap;
+}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+/* ---------- misc ---------- */
+.sechd{display:flex;align-items:baseline;gap:9px;margin:24px 2px 12px}
+.sechd h2{font-size:15px;font-weight:700}
+.sechd span{font-size:10.5px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.swatches{display:flex;gap:7px;flex-wrap:wrap}
+.sw{width:38px;height:38px;border-radius:11px;border:1px solid rgba(255,255,255,.14);position:relative}
+.sw::after{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(150deg,rgba(255,255,255,.22),transparent 55%)}
+.tag{display:inline-block;padding:5px 10px;border-radius:9px;font-size:11px;font-weight:600;
+  background:color-mix(in srgb,var(--accent) 15%, transparent);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 28%, transparent)}
+.tag.ng{background:rgba(255,90,90,.11);color:#FF8A8A;border-color:rgba(255,90,90,.24)}
+.p{font-size:13px;line-height:1.85;color:var(--ink-2)}
+.divider{height:1px;background:var(--line);margin:18px 0}
+
+/* ---------- item cards ---------- */
+.items{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.item{padding:0;overflow:hidden;text-align:left;border:1px solid var(--line);background:var(--glass);
+  border-radius:var(--r);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  transition:transform .18s;color:inherit;font-family:inherit;display:block;width:100%}
+.item:active{transform:scale(.97)}
+.item .ph{height:112px;display:grid;place-items:center;font-size:38px;position:relative}
+.item .meta{padding:12px 13px 14px}
+.item .nm{font-size:13.5px;font-weight:700;margin-bottom:4px}
+.item .ds{font-size:11px;color:var(--ink-3);line-height:1.6}
+.item .fit{position:absolute;top:9px;right:9px;font-size:9.5px;font-weight:800;padding:4px 8px;border-radius:8px;
+  background:rgba(8,8,12,.6);backdrop-filter:blur(10px);color:var(--accent);letter-spacing:.04em}
+
+/* ---------- wizard ---------- */
+.prog{height:3px;background:rgba(255,255,255,.09);border-radius:2px;margin:0 18px 22px;overflow:hidden;flex-shrink:0}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:2px;transition:width .5s cubic-bezier(.32,.72,0,1)}
+.qh{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:800;text-transform:uppercase;margin-bottom:9px}
+.qt{font-size:23px;font-weight:700;line-height:1.45;margin-bottom:8px;letter-spacing:.005em}
+.qs{font-size:12.5px;color:var(--ink-3);line-height:1.75;margin-bottom:26px}
+.opt{width:100%;padding:17px 16px;border-radius:17px;background:var(--glass);border:1px solid var(--line);
+  color:var(--ink);text-align:left;margin-bottom:9px;font-size:14px;font-weight:600;font-family:inherit;
+  display:flex;align-items:center;gap:13px;transition:all .2s;line-height:1.5}
+.opt:active{transform:scale(.98)}
+.opt.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 13%, transparent)}
+.opt .k{width:26px;height:26px;border-radius:9px;background:rgba(255,255,255,.09);display:grid;place-items:center;
+  font-size:11px;font-weight:800;flex-shrink:0;color:var(--ink-3)}
+.opt.on .k{background:var(--accent);color:var(--accent-ink)}
+.opt .txt{flex:1}
+.opt .txt small{display:block;font-size:11px;color:var(--ink-3);font-weight:500;margin-top:3px;line-height:1.6}
+
+/* ---------- upload ---------- */
+.drop{border:1.5px dashed rgba(255,255,255,.16);border-radius:var(--r);padding:38px 20px;text-align:center;
+  background:rgba(255,255,255,.025);margin-bottom:13px}
+.drop .ic{font-size:36px;margin-bottom:12px;opacity:.65}
+.drop .t{font-size:14px;font-weight:700;margin-bottom:6px}
+.drop .s{font-size:11.5px;color:var(--ink-3);line-height:1.7}
+
+/* ---------- field ---------- */
+.field{margin-bottom:15px}
+.field label{display:block;font-size:11px;color:var(--ink-3);font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:8px}
+.field .inp{width:100%;padding:15px 16px;border-radius:15px;background:var(--glass);border:1px solid var(--line);
+  color:var(--ink);font-size:16px;font-family:inherit;font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+/* ---------- reveal ---------- */
+.reveal{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 26px 60px;text-align:center}
+.ring{width:132px;height:132px;margin:0 auto 30px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .c{position:absolute;inset:0;display:grid;place-items:center;font-size:34px}
+
+/* ---------- avatar ---------- */
+.stage{border-radius:var(--r);overflow:hidden;position:relative;
+  background:linear-gradient(170deg,#15151E,#0B0B11);border:1px solid var(--line);margin-bottom:13px}
+.stage svg{display:block;width:100%;height:auto}
+.ctrl{display:flex;align-items:center;gap:12px;padding:13px 15px;margin-bottom:9px}
+.ctrl .nm{font-size:12.5px;font-weight:700;width:62px;flex-shrink:0;color:var(--ink-2)}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;background:rgba(255,255,255,.14)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+  background:var(--accent);box-shadow:0 3px 10px rgba(0,0,0,.5);border:2px solid rgba(255,255,255,.85)}
+
+/* ---------- sheet ---------- */
+.sheet{position:absolute;inset:0;z-index:80;pointer-events:none}
+.sheet .bd{position:absolute;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);opacity:0;transition:opacity .3s}
+.sheet .pn{position:absolute;left:0;right:0;bottom:0;max-height:88%;overflow-y:auto;
+  background:rgba(18,18,25,.94);backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  border-radius:28px 28px 0 0;border-top:1px solid rgba(255,255,255,.13);
+  padding:12px 20px calc(var(--safe-b) + 26px);transform:translateY(100%);
+  transition:transform .42s cubic-bezier(.32,.72,0,1);scrollbar-width:none}
+.sheet .pn::-webkit-scrollbar{display:none}
+.sheet.on{pointer-events:auto}
+.sheet.on .bd{opacity:1}
+.sheet.on .pn{transform:translateY(0)}
+.grab{width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.22);margin:0 auto 20px}
+
+/* ---------- shop ---------- */
+.shop{display:flex;align-items:center;gap:13px;width:100%;padding:14px 15px;border-radius:15px;
+  background:var(--glass);border:1px solid var(--line);color:var(--ink);font-family:inherit;
+  margin-bottom:9px;transition:transform .15s;text-align:left;text-decoration:none}
+.shop:active{transform:scale(.98)}
+.shop .lg{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:14px;font-weight:900;flex-shrink:0}
+.shop .tt{flex:1;font-size:13.5px;font-weight:700}
+.shop .tt small{display:block;font-size:10.5px;color:var(--ink-3);font-weight:500;margin-top:2px}
+.shop .ar{color:var(--ink-3);font-size:14px}
+
+/* ---------- list ---------- */
+.li{display:flex;gap:13px;padding:15px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+.li:last-child{border:0}
+.li .ic{width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--accent) 16%, transparent);
+  display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.li .tx{flex:1}
+.li .tx b{font-size:13.5px;font-weight:700;display:block;margin-bottom:4px}
+.li .tx span{font-size:11.5px;color:var(--ink-3);line-height:1.7;display:block}
+
+/* ---------- progress ---------- */
+.big{font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.big small{font-size:15px;font-weight:600;color:var(--ink-3);margin-left:5px}
+.ms{display:flex;gap:11px;align-items:center;padding:13px 0}
+.ms .dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink-3);flex-shrink:0}
+.ms.done .dot{background:var(--accent);border-color:var(--accent)}
+.ms.now .dot{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%, transparent)}
+.ms .t{flex:1;font-size:13px;font-weight:600}
+.ms .t small{display:block;font-size:11px;color:var(--ink-3);font-weight:500;margin-top:2px}
+
+/* ---------- switch ---------- */
+.sw2{width:48px;height:29px;border-radius:15px;background:rgba(255,255,255,.13);position:relative;
+  transition:background .25s;flex-shrink:0;border:0}
+.sw2 i{position:absolute;top:3px;left:3px;width:23px;height:23px;border-radius:50%;background:#fff;
+  transition:transform .28s cubic-bezier(.3,1.5,.5,1)}
+.sw2.on{background:var(--accent)}
+.sw2.on i{transform:translateX(19px)}
+
+/* ---------- toast ---------- */
+#toast{position:absolute;left:50%;bottom:calc(var(--safe-b) + 92px);transform:translate(-50%,20px);
+  background:rgba(28,28,36,.95);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.13);
+  padding:13px 20px;border-radius:15px;font-size:12.5px;font-weight:600;z-index:200;
+  opacity:0;pointer-events:none;transition:all .3s;max-width:86%;text-align:center;line-height:1.6}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- portal ---------- */
+.hscroll{display:flex;gap:11px;overflow-x:auto;padding:2px 18px 4px;margin:0 -18px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.hcard{flex-shrink:0;width:172px;border-radius:20px;overflow:hidden;text-align:left;color:inherit;
+  font-family:inherit;background:var(--glass);border:1px solid var(--line);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);transition:transform .18s}
+.hcard:active{transform:scale(.96)}
+.hcard .cv{height:104px;display:grid;place-items:center;font-size:34px;position:relative}
+.hcard .cv .bdg{position:absolute;top:8px;left:8px;font-size:8.5px;font-weight:800;letter-spacing:.06em;
+  padding:4px 7px;border-radius:7px;background:rgba(8,8,12,.62);backdrop-filter:blur(10px);color:var(--accent)}
+.hcard .mt{padding:11px 12px 13px}
+.hcard .mt b{display:block;font-size:12.5px;font-weight:700;line-height:1.45;margin-bottom:4px}
+.hcard .mt span{font-size:10.5px;color:var(--ink-3);line-height:1.55;display:block}
+.scard{flex-shrink:0;width:112px;border-radius:17px;overflow:hidden;text-align:left;color:inherit;
+  font-family:inherit;background:var(--glass);border:1px solid var(--line);transition:transform .18s}
+.scard:active{transform:scale(.95)}
+.scard .cv{height:82px;display:grid;place-items:center;font-size:26px}
+.scard .mt{padding:9px 10px 11px}
+.scard .mt b{display:block;font-size:11px;font-weight:700;margin-bottom:3px;line-height:1.4}
+.scard .mt span{font-size:9.5px;color:var(--ink-3)}
+.dnabar{display:flex;gap:7px;overflow-x:auto;margin:0 -18px 18px;padding:0 18px;scrollbar-width:none}
+.dnabar::-webkit-scrollbar{display:none}
+.dnapill{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:9px 13px;border-radius:13px;
+  background:var(--glass);border:1px solid var(--line);color:inherit;font-family:inherit;transition:transform .15s}
+.dnapill:active{transform:scale(.95)}
+.dnapill i{font-style:normal;font-size:13px}
+.dnapill b{font-size:12px;font-weight:700}
+.dnapill small{font-size:9px;color:var(--ink-3);display:block;letter-spacing:.06em;font-weight:600}
+.hero{padding:18px;border-radius:24px;position:relative;overflow:hidden}
+.hero .fits{display:flex;gap:9px;margin:14px 0 15px}
+.hero .fit3{flex:1;aspect-ratio:3/4;border-radius:15px;display:grid;place-items:center;font-size:29px;
+  border:1px solid rgba(255,255,255,.08);position:relative}
+.hero .fit3 span{position:absolute;bottom:7px;left:0;right:0;text-align:center;font-size:9px;
+  color:var(--ink-3);font-weight:700;letter-spacing:.04em}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.cat{aspect-ratio:1;border-radius:17px;background:var(--glass);border:1px solid var(--line);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:inherit;font-family:inherit;font-size:9.5px;font-weight:700;transition:transform .15s}
+.cat:active{transform:scale(.92)}
+.cat i{font-style:normal;font-size:20px}
+.heart{width:44px;height:44px;border-radius:15px;border:1px solid var(--line);background:var(--glass);
+  color:var(--ink-2);font-size:17px;flex-shrink:0;transition:all .2s}
+.heart.on{background:color-mix(in srgb,var(--accent) 18%, transparent);border-color:var(--accent);color:var(--accent)}
+.fadein{animation:fi .55s cubic-bezier(.32,.72,0,1) both}
+@keyframes fi{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.d1{animation-delay:.05s}.d2{animation-delay:.1s}.d3{animation-delay:.16s}.d4{animation-delay:.22s}.d5{animation-delay:.28s}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ============ SPLASH ============ -->
+<div class="screen active" id="s-splash">
+  <div class="reveal">
+    <div style="font-size:56px;margin-bottom:26px" class="fadein">🪞</div>
+    <div class="fadein d1" style="font-size:38px;font-weight:800;letter-spacing:.18em;margin-bottom:12px">MIRROR</div>
+    <div class="fadein d2" style="font-size:12px;letter-spacing:.24em;color:var(--ink-3);font-weight:600;margin-bottom:46px">PERSONAL STYLING AI</div>
+    <p class="p fadein d3" style="margin-bottom:36px;text-align:center">
+      骨格・パーソナルカラー・顔タイプ。<br>3つの診断から、あなただけの<br>「似合う」を導き出します。
+    </p>
+    <div class="glass card fadein d4" style="margin-bottom:16px;text-align:left;display:flex;gap:11px;align-items:flex-start">
+      <div style="font-size:17px">ℹ️</div>
+      <div style="font-size:11.5px;color:var(--ink-2);line-height:1.75">
+        診断は<b>初回の一度だけ</b>。2回目以降の起動では、この画面をスキップして<b>ポータル</b>が直接開きます。
+      </div>
+    </div>
+    <button class="btn fadein d4" onclick="go('s-q1')">診断をはじめる（初回のみ）</button>
+    <button class="btn ghost fadein d5" style="margin-top:11px" onclick="go('s-home')">2回目以降の起動を見る →</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 1 : 基本情報 ============ -->
+<div class="screen" id="s-q1">
+  <div class="hd"><button class="iconbtn" onclick="back('s-splash')">←</button>
+    <div><div class="sub">Step 1 / 6</div><h1>基本情報</h1></div></div>
+  <div class="prog"><i style="width:16%"></i></div>
+  <div class="body">
+    <div class="qh">Basic</div>
+    <div class="qt">体のデータを<br>教えてください</div>
+    <div class="qs">身長と体重から、シルエットの見え方と推奨サイズ感を算出します。</div>
+    <div class="row2">
+      <div class="field"><label>身長 (cm)</label><input class="inp" type="number" value="166" inputmode="numeric"></div>
+      <div class="field"><label>体重 (kg)</label><input class="inp" type="number" value="70" inputmode="numeric"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>年齢</label><input class="inp" type="number" value="31" inputmode="numeric"></div>
+      <div class="field"><label>目標体重 (kg)</label><input class="inp" type="number" value="60" inputmode="numeric"></div>
+    </div>
+    <div class="field"><label>普段のトップスサイズ</label>
+      <div class="chips" style="margin:0;padding:0">
+        <button class="chip" onclick="pick(this)">S</button>
+        <button class="chip on" onclick="pick(this)">M</button>
+        <button class="chip" onclick="pick(this)">L</button>
+        <button class="chip" onclick="pick(this)">XL</button>
+      </div>
+    </div>
+    <div class="glass card" style="margin-top:8px">
+      <div class="lbl">現在のBMI</div>
+      <div class="val">25.4 <small>やや高め — 縦のIラインを強調する提案を優先します</small></div>
+    </div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-q2')">次へ</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 2 : 全身写真 ============ -->
+<div class="screen" id="s-q2">
+  <div class="hd"><button class="iconbtn" onclick="back('s-q1')">←</button>
+    <div><div class="sub">Step 2 / 6</div><h1>全身写真</h1></div></div>
+  <div class="prog"><i style="width:33%"></i></div>
+  <div class="body">
+    <div class="qh">Body</div>
+    <div class="qt">全身写真を<br>アップロード</div>
+    <div class="qs">肩幅・腰位置・体の厚みをシルエット化します。写真は端末内だけで処理され、外部には送信されません。</div>
+    <div class="drop" onclick="toast('モックアップです。実装版ではカメラロールが開きます')">
+      <div class="ic">📷</div>
+      <div class="t">タップして写真を選択</div>
+      <div class="s">正面・全身・体のラインが分かる服装で<br>撮影すると精度が上がります</div>
+    </div>
+    <div class="glass card" style="display:flex;gap:12px;align-items:center;margin-top:5px">
+      <div style="font-size:20px">🔒</div>
+      <div style="font-size:11.5px;color:var(--ink-2);line-height:1.7">
+        写真は端末のローカルストレージにのみ保存されます。サーバー送信・クラウド保存は一切行いません。
+      </div>
+    </div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-q3')">次へ</button>
+    <button class="btn ghost sm" style="margin-top:9px" onclick="go('s-q3')">スキップして質問だけで診断</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 3 : 骨格診断 ============ -->
+<div class="screen" id="s-q3">
+  <div class="hd"><button class="iconbtn" onclick="back('s-q2')">←</button>
+    <div><div class="sub">Step 3 / 6 — 骨格診断</div><h1>質問 4 / 12</h1></div></div>
+  <div class="prog"><i style="width:50%"></i></div>
+  <div class="body">
+    <div class="qh">Skeleton</div>
+    <div class="qt">手首の断面は<br>どんな形ですか？</div>
+    <div class="qs">親指と人差し指で手首を軽くはさんで確認してください。骨格タイプ判定で最も重みの大きい項目です。</div>
+    <button class="opt on" onclick="pick2(this)"><span class="k">A</span><span class="txt">丸い・楕円形<small>細いけれど肉感があり、丸みを帯びている</small></span></button>
+    <button class="opt" onclick="pick2(this)"><span class="k">B</span><span class="txt">平たい・薄い<small>厚みがなく、平べったい断面</small></span></button>
+    <button class="opt" onclick="pick2(this)"><span class="k">C</span><span class="txt">骨がゴツゴツしている<small>骨や関節がはっきり目立つ</small></span></button>
+    <div class="glass card" style="margin-top:16px;display:flex;gap:11px;align-items:flex-start">
+      <div style="font-size:17px">💡</div>
+      <div style="font-size:11.5px;color:var(--ink-2);line-height:1.75">
+        残り8問：腰位置、ヒップの立体感、肌質、太ったときに脂肪がつく場所、鎖骨の出方 など
+      </div>
+    </div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-q4')">次へ</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 4 : 顔写真＋肌色抽出 ============ -->
+<div class="screen" id="s-q4">
+  <div class="hd"><button class="iconbtn" onclick="back('s-q3')">←</button>
+    <div><div class="sub">Step 4 / 6</div><h1>肌の色を測定</h1></div></div>
+  <div class="prog"><i style="width:66%"></i></div>
+  <div class="body">
+    <div class="qh">Skin Tone</div>
+    <div class="qt">顔写真から<br>肌の色を自動抽出</div>
+    <div class="qs">頬のあたりをタップすると、その周辺20×20pxの平均色を解析してイエローベース／ブルーベースを自動判定します。</div>
+    <div class="stage" style="aspect-ratio:3/4;display:grid;place-items:center;position:relative">
+      <div style="text-align:center">
+        <div style="font-size:44px;opacity:.35;margin-bottom:12px">👤</div>
+        <div style="font-size:11.5px;color:var(--ink-3);line-height:1.7">顔写真をアップロード後<br>頬をタップして測定</div>
+      </div>
+      <div style="position:absolute;top:32%;left:26%;width:44px;height:44px;border-radius:50%;
+        border:2px solid var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 20%, transparent)"></div>
+    </div>
+    <div class="glass card">
+      <div class="lbl">抽出結果</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:4px">
+        <div class="sw" style="width:52px;height:52px;background:#D9B18F"></div>
+        <div>
+          <div style="font-size:16px;font-weight:700">#D9B18F</div>
+          <div style="font-size:11px;color:var(--ink-3);margin-top:4px">色相 28° / 彩度 34% → <b style="color:var(--accent)">ウォーム（イエベ）</b></div>
+        </div>
+      </div>
+    </div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-q5')">次へ</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 5 : カラー質問 ============ -->
+<div class="screen" id="s-q5">
+  <div class="hd"><button class="iconbtn" onclick="back('s-q4')">←</button>
+    <div><div class="sub">Step 5 / 6 — パーソナルカラー</div><h1>質問 3 / 5</h1></div></div>
+  <div class="prog"><i style="width:83%"></i></div>
+  <div class="body">
+    <div class="qh">Color</div>
+    <div class="qt">身につけたとき<br>顔映りが良いのは？</div>
+    <div class="qs">シルバーとゴールドのアクセサリーを顔の横に当てて比較してください。金属色の判定はパーソナルカラーの決め手になります。</div>
+    <button class="opt" onclick="pick2(this)"><span class="k">A</span><span class="txt">シルバー<small>肌が明るく、透明感が出る</small></span></button>
+    <button class="opt on" onclick="pick2(this)"><span class="k">B</span><span class="txt">ゴールド<small>肌に血色が出て、健康的に見える</small></span></button>
+    <button class="opt" onclick="pick2(this)"><span class="k">C</span><span class="txt">どちらも同じくらい<small>差がよく分からない</small></span></button>
+    <div class="divider"></div>
+    <div style="font-size:11px;color:var(--ink-3);letter-spacing:.1em;font-weight:700;margin-bottom:11px">残りの質問</div>
+    <div class="li"><div class="ic">👁</div><div class="tx"><b>瞳の色</b><span>黒に近い / こげ茶 / 明るい茶</span></div></div>
+    <div class="li"><div class="ic">☀️</div><div class="tx"><b>日焼けの仕方</b><span>赤くなる / 黒くなる</span></div></div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-q6')">次へ</button>
+  </div>
+</div>
+
+<!-- ============ WIZARD 6 : 顔タイプ ============ -->
+<div class="screen" id="s-q6">
+  <div class="hd"><button class="iconbtn" onclick="back('s-q5')">←</button>
+    <div><div class="sub">Step 6 / 6 — 顔タイプ</div><h1>質問 2 / 6</h1></div></div>
+  <div class="prog"><i style="width:100%"></i></div>
+  <div class="body">
+    <div class="qh">Face</div>
+    <div class="qt">顔の輪郭に<br>近いのは？</div>
+    <div class="qs">「子供顔／大人顔」×「直線／曲線」×「ソフト／ハード」の3軸で、8つの顔タイプに分類します。</div>
+    <button class="opt" onclick="pick2(this)"><span class="k">A</span><span class="txt">丸みがある<small>頬がふっくら、あごが丸い</small></span></button>
+    <button class="opt on" onclick="pick2(this)"><span class="k">B</span><span class="txt">直線的でシャープ<small>あごのラインが角ばっている</small></span></button>
+    <button class="opt" onclick="pick2(this)"><span class="k">C</span><span class="txt">面長・卵型<small>縦の長さがある</small></span></button>
+    <div class="glass card" style="margin-top:16px">
+      <div class="lbl">写真から自動計測中</div>
+      <div style="font-size:11.5px;color:var(--ink-2);line-height:1.75;margin-top:4px">
+        顔の縦横比 1 : 1.42 → 標準〜やや面長。目の位置と輪郭の曲率を併せて判定します。
+      </div>
+    </div>
+    <button class="btn" style="margin-top:20px" onclick="go('s-reveal');runReveal()">診断結果を見る</button>
+  </div>
+</div>
+
+<!-- ============ REVEAL ============ -->
+<div class="screen" id="s-reveal">
+  <div class="reveal">
+    <div class="ring">
+      <svg width="132" height="132" viewBox="0 0 132 132">
+        <circle cx="66" cy="66" r="60" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+        <circle id="rc" cx="66" cy="66" r="60" fill="none" stroke="var(--accent)" stroke-width="4"
+          stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377"
+          style="transition:stroke-dashoffset 1.9s cubic-bezier(.32,.72,0,1)"/>
+      </svg>
+      <div class="c">✨</div>
+    </div>
+    <div style="font-size:11px;letter-spacing:.2em;color:var(--accent);font-weight:800;margin-bottom:14px">YOUR TYPE</div>
+    <div style="font-size:29px;font-weight:800;line-height:1.4;margin-bottom:10px">骨格ストレート<br>イエベ秋 × クールソフト</div>
+    <p class="p" style="text-align:center;margin-bottom:38px">
+      厚みのある上半身と直線的な顔立ち。<br>ハリのある素材でIラインを作ると<br>最も洗練されて見えるタイプです。
+    </p>
+    <button class="btn" onclick="go('s-home')">結果を見る</button>
+  </div>
+</div>
+
+<!-- ============ PORTAL ============ -->
+<div class="screen" id="s-home">
+  <div class="hd">
+    <div><div class="sub">Sunday, Aug 9</div><h1>こんにちは、けいたさん</h1></div>
+    <div class="sp"></div>
+    <button class="iconbtn" onclick="go('s-saved')">♡</button>
+    <button class="iconbtn" onclick="go('s-set')">⚙︎</button>
+  </div>
+  <div class="body">
+
+    <!-- Style DNA バー -->
+    <div class="dnabar fadein">
+      <button class="dnapill" onclick="go('s-dna')"><i>🦴</i><span><small>骨格</small><b>ストレート</b></span></button>
+      <button class="dnapill" onclick="go('s-dna')"><i>🎨</i><span><small>カラー</small><b>イエベ秋</b></span></button>
+      <button class="dnapill" onclick="go('s-dna')"><i>👤</i><span><small>顔タイプ</small><b>クールソフト</b></span></button>
+      <button class="dnapill" onclick="go('s-dna')"><i>→</i><span><small>診断</small><b>詳細を見る</b></span></button>
+    </div>
+
+    <!-- 今日のコーデ -->
+    <div class="glass hero fadein d1">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="flex:1">
+          <div class="lbl" style="margin:0">Today's Outfit</div>
+          <div style="font-size:17px;font-weight:800;margin-top:5px">今日のコーデ</div>
+        </div>
+        <button class="iconbtn" onclick="shuffle()" style="background:var(--glass-2)">⟳</button>
+      </div>
+      <div class="fits">
+        <div class="fit3" id="f1" style="background:linear-gradient(150deg,#2E3A4A,#1A222E)">👔<span>TOPS</span></div>
+        <div class="fit3" id="f2" style="background:linear-gradient(150deg,#3E362C,#241F19)">👖<span>BOTTOMS</span></div>
+        <div class="fit3" id="f3" style="background:linear-gradient(150deg,#3A3028,#1E1A16)">👞<span>SHOES</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px">
+        <div style="font-size:26px;font-weight:800;color:var(--accent)" id="score">94</div>
+        <div style="font-size:11px;color:var(--ink-3);font-weight:600;line-height:1.6" id="scoretx">
+          相性◎ — ネイビー×チャコールの濃淡でIラインが成立
+        </div>
+      </div>
+      <div style="display:flex;gap:9px">
+        <button class="btn sm" style="flex:1" onclick="nav('s-tryon',2)">試着する</button>
+        <button class="btn ghost sm" style="flex:1" onclick="openSheet()">アイテムを見る</button>
+      </div>
+    </div>
+
+    <!-- 季節・トレンド特集 -->
+    <div class="sechd"><h2>季節・トレンド特集</h2><span>2026 A/W</span></div>
+    <div class="hscroll fadein d2">
+      <button class="hcard" onclick="go('s-trend')">
+        <div class="cv" style="background:linear-gradient(150deg,#4A3A2E,#241C16)">🍂<span class="bdg">NEW</span></div>
+        <div class="mt"><b>2026秋の新色 ×<br>骨格ストレート</b><span>アースブラウンで作るIライン</span></div>
+      </button>
+      <button class="hcard" onclick="go('s-trend')">
+        <div class="cv" style="background:linear-gradient(150deg,#2E3A4A,#161C24)">🧥<span class="bdg">TREND</span></div>
+        <div class="mt"><b>ショート丈<br>ブルゾン特集</b><span>春夏から継続、秋も主役級</span></div>
+      </button>
+      <button class="hcard" onclick="go('s-trend')">
+        <div class="cv" style="background:linear-gradient(150deg,#3A3E30,#1C1E18)">📏<span class="bdg">TREND</span></div>
+        <div class="mt"><b>ストライプの<br>使いこなし</b><span>今季の柄の主役</span></div>
+      </button>
+      <button class="hcard" onclick="go('s-trend')">
+        <div class="cv" style="background:linear-gradient(150deg,#38323C,#1A171E)">👞<span class="bdg">SHIFT</span></div>
+        <div class="mt"><b>厚底スニーカー<br>→ レザー靴へ</b><span>足元のトレンド転換</span></div>
+      </button>
+    </div>
+
+    <!-- 保存したアイテム -->
+    <div class="sechd"><h2>保存したアイテム</h2><span>6 items</span></div>
+    <div class="hscroll fadein d3">
+      <button class="scard" onclick="openSheet()">
+        <div class="cv" style="background:linear-gradient(150deg,#2E3A4A,#1A222E)">👔</div>
+        <div class="mt"><b>OXシャツ</b><span>ネイビー</span></div></button>
+      <button class="scard" onclick="openSheet()">
+        <div class="cv" style="background:linear-gradient(150deg,#4A3A2E,#28201A)">🧥</div>
+        <div class="mt"><b>ステンカラー</b><span>キャメル</span></div></button>
+      <button class="scard" onclick="openSheet()">
+        <div class="cv" style="background:linear-gradient(150deg,#4A4030,#26211A)">⌚️</div>
+        <div class="mt"><b>レザー時計</b><span>ゴールド</span></div></button>
+      <button class="scard" onclick="openSheet()">
+        <div class="cv" style="background:linear-gradient(150deg,#3E362C,#241F19)">👖</div>
+        <div class="mt"><b>テーパード</b><span>チャコール</span></div></button>
+      <button class="scard" onclick="go('s-saved')">
+        <div class="cv" style="background:rgba(255,255,255,.04)">→</div>
+        <div class="mt"><b>すべて見る</b><span>6 items</span></div></button>
+    </div>
+
+    <!-- カテゴリから探す -->
+    <div class="sechd"><h2>カテゴリから探す</h2><span>Browse</span></div>
+    <div class="grid4 fadein d4">
+      <button class="cat" onclick="nav('s-style',1)"><i>👔</i>トップス</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>👖</i>ボトムス</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>🧥</i>アウター</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>👞</i>シューズ</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>⌚️</i>時計</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>👓</i>メガネ</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>🧢</i>帽子</button>
+      <button class="cat" onclick="nav('s-style',1)"><i>💇</i>髪型</button>
+    </div>
+
+    <!-- 体型 -->
+    <button class="glass card b-wide fadein d5" style="width:100%;margin-top:14px;text-align:left;color:inherit;
+      font-family:inherit;display:flex;align-items:center;gap:14px" onclick="nav('s-prog',3)">
+      <div style="font-size:24px">📉</div>
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:700;margin-bottom:4px">目標まで あと 10.2kg</div>
+        <div style="font-size:11px;color:var(--ink-3)">60kg到達で提案アイテムが12点追加されます</div>
+      </div>
+      <div style="color:var(--ink-3)">→</div>
+    </button>
+  </div>
+</div>
+
+<!-- ============ STYLE DNA 詳細 ============ -->
+<div class="screen" id="s-dna">
+  <div class="hd"><button class="iconbtn" onclick="back('s-home')">←</button>
+    <div><div class="sub">Diagnosis</div><h1>診断結果</h1></div></div>
+  <div class="body">
+    <div class="bento">
+      <div class="glass card b-wide" style="padding:20px">
+        <div class="lbl">Your Style DNA</div>
+        <div style="font-size:25px;font-weight:800;line-height:1.35;margin-bottom:14px">骨格ストレート<br>イエベ秋 × クールソフト</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <span class="tag">Iライン</span><span class="tag">ハリ素材</span><span class="tag">アースカラー</span><span class="tag">直線ディテール</span>
+        </div>
+      </div>
+      <div class="glass card">
+        <div class="lbl">骨格</div>
+        <div class="val">ストレート<small>厚みのある上半身<br>腰位置が高い</small></div>
+      </div>
+      <div class="glass card">
+        <div class="lbl">顔タイプ</div>
+        <div class="val">クールソフト<small>大人顔 × 直線<br>キレイめが軸</small></div>
+      </div>
+      <div class="glass card b-wide">
+        <div class="lbl">Personal Color — イエベ秋（Autumn）</div>
+        <div class="swatches" style="margin-top:10px">
+          <div class="sw" style="background:#8B5E3C"></div>
+          <div class="sw" style="background:#6B7A4F"></div>
+          <div class="sw" style="background:#C1663F"></div>
+          <div class="sw" style="background:#3E4A3D"></div>
+          <div class="sw" style="background:#D9B26A"></div>
+          <div class="sw" style="background:#7A3F35"></div>
+          <div class="sw" style="background:#5C4B3A"></div>
+          <div class="sw" style="background:#A8896B"></div>
+        </div>
+        <div style="margin-top:13px;font-size:11.5px;color:var(--ink-3);line-height:1.7">
+          金属色は<b style="color:var(--accent)">ゴールド／ブロンズ</b>が好相性。<br>純白・パステル・原色の青は顔色が沈むため避けます。
+        </div>
+      </div>
+      <div class="glass card b-wide" style="padding:18px">
+        <div class="lbl">似合う服装の傾向</div>
+        <p class="p" style="margin-top:6px">
+          上半身に厚みがあるため、生地が薄いと体のラインを拾って着ぶくれします。ハリのあるコットンやウール素材でジャストフィットを選び、縦のIラインを作るのが基本戦略です。<br><br>
+          顔立ちが直線的なので、Vネックやレギュラーカラーのシャツなど直線的な襟元が調和します。反対に、丸首のゆるいニットや装飾の多いアイテムは顔とのバランスが崩れます。
+        </p>
+      </div>
+    </div>
+    <button class="btn ghost" style="margin-top:16px" onclick="go('s-q1')">診断をやり直す</button>
+  </div>
+</div>
+
+<!-- ============ 特集詳細 ============ -->
+<div class="screen" id="s-trend">
+  <div class="hd"><button class="iconbtn" onclick="back('s-home')">←</button>
+    <div><div class="sub">Feature</div><h1>2026 A/W</h1></div></div>
+  <div class="body">
+    <div style="height:170px;border-radius:24px;background:linear-gradient(150deg,#4A3A2E,#1C1611);
+      display:grid;place-items:center;font-size:52px;margin-bottom:20px;position:relative">🍂
+      <span class="tag" style="position:absolute;top:14px;left:14px">内蔵キュレーション</span></div>
+    <div style="font-size:23px;font-weight:800;line-height:1.4;margin-bottom:10px">2026秋の新色 ×<br>骨格ストレート</div>
+    <p class="p" style="margin-bottom:22px">
+      今季はベージュとブラウンのアースカラーが引き続き軸。黒・ネイビーと組み合わせた落ち着いた配色が主流です。
+      イエベ秋のあなたには、このトレンドがそのまま追い風になります。ブラウンは元々得意な色域なので、
+      流行を追うだけで自然と似合う配色になる珍しいシーズンです。
+    </p>
+
+    <div class="glass card" style="margin-bottom:16px">
+      <div class="lbl">今季のキーワード</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:10px">
+        <span class="tag">アースカラー</span><span class="tag">ストライプ</span>
+        <span class="tag">ショート丈ブルゾン</span><span class="tag">ワイドパンツ</span>
+        <span class="tag">タックイン</span><span class="tag">レザーシューズ回帰</span>
+      </div>
+    </div>
+
+    <div class="glass card" style="margin-bottom:16px">
+      <div class="lbl">あなた向けの読み替え</div>
+      <div class="li"><div class="ic">✓</div><div class="tx"><b>アースカラー → 全面採用</b><span>イエベ秋の得意色。ブラウン・オリーブ・テラコッタをメインに</span></div></div>
+      <div class="li"><div class="ic">✓</div><div class="tx"><b>ストライプ → 細めの縦のみ</b><span>直線的な顔立ちと相性◎。太い横ストライプは厚みが出るため回避</span></div></div>
+      <div class="li"><div class="ic">✓</div><div class="tx"><b>レザーシューズ回帰 → 追い風</b><span>骨格ストレートは元々厚底スニーカーより革靴が有利</span></div></div>
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">✕</div><div class="tx"><b>ワイドパンツ → 要注意</b><span>ストレートには重心が下がるリスク。テーパードで代替を推奨</span></div></div>
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">✕</div><div class="tx"><b>ショート丈ブルゾン → 60kg到達後に</b><span>今の体型では上半身の厚みが強調されます</span></div></div>
+    </div>
+
+    <div class="sechd"><h2>この特集のアイテム</h2><span>4 items</span></div>
+    <div class="items" style="margin-bottom:22px">
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#4A3A2E,#28201A)">🧥<span class="fit">93%</span></div>
+        <div class="meta"><div class="nm">ステンカラーコート</div><div class="ds">アースブラウン / 膝上丈</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3A3E30,#1C1E18)">👔<span class="fit">91%</span></div>
+        <div class="meta"><div class="nm">細ストライプシャツ</div><div class="ds">オリーブ / 縦ストライプ</div></div></button>
+    </div>
+
+    <div class="sechd" style="margin-top:0"><h2>ECの最新ランキング</h2><span>リアルタイム</span></div>
+    <p class="p" style="font-size:12px;margin-bottom:14px">
+      内蔵の解説はここまで。実際の売れ筋は各ECの最新ランキングで確認できます。
+      あなたのタイプに合う絞り込み条件を付けた状態で開きます。
+    </p>
+    <a class="shop" href="https://zozo.jp/men/ranking/" target="_blank" rel="noopener">
+      <div class="lg" style="background:#111;color:#fff;border:1px solid rgba(255,255,255,.2)">Z</div>
+      <div class="tt">ZOZOTOWN メンズ売れ筋<small>今週のランキングを開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://www.uniqlo.com/jp/ja/men" target="_blank" rel="noopener">
+      <div class="lg" style="background:#FF0000;color:#fff">U</div>
+      <div class="tt">UNIQLO メンズ新着<small>今季の新作を開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://search.rakuten.co.jp/search/mall/%E3%83%A1%E3%83%B3%E3%82%BA+%E3%82%A2%E3%83%BC%E3%82%B9%E3%82%AB%E3%83%A9%E3%83%BC+%E3%82%B3%E3%83%BC%E3%83%88/" target="_blank" rel="noopener">
+      <div class="lg" style="background:#BF0000;color:#fff">R</div>
+      <div class="tt">楽天市場<small>アースカラー × コートで検索</small></div><div class="ar">↗</div></a>
+  </div>
+</div>
+
+<!-- ============ 保存したアイテム ============ -->
+<div class="screen" id="s-saved">
+  <div class="hd"><button class="iconbtn" onclick="back('s-home')">←</button>
+    <div><div class="sub">Saved</div><h1>保存したアイテム</h1></div></div>
+  <div class="body">
+    <div class="chips">
+      <button class="chip on" onclick="pick(this)">すべて</button>
+      <button class="chip" onclick="pick(this)">トップス</button>
+      <button class="chip" onclick="pick(this)">ボトムス</button>
+      <button class="chip" onclick="pick(this)">アウター</button>
+      <button class="chip" onclick="pick(this)">小物</button>
+    </div>
+    <div class="items">
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#2E3A4A,#1A222E)">👔<span class="fit">98%</span></div>
+        <div class="meta"><div class="nm">オックスフォードシャツ</div><div class="ds">ネイビー</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#4A3A2E,#28201A)">🧥<span class="fit">93%</span></div>
+        <div class="meta"><div class="nm">ステンカラーコート</div><div class="ds">キャメル</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#4A4030,#26211A)">⌚️<span class="fit">94%</span></div>
+        <div class="meta"><div class="nm">腕時計</div><div class="ds">ゴールド × レザー</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3E362C,#241F19)">👖<span class="fit">95%</span></div>
+        <div class="meta"><div class="nm">テーパードパンツ</div><div class="ds">チャコール</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#38323C,#1C191F)">👓<span class="fit">89%</span></div>
+        <div class="meta"><div class="nm">メガネ</div><div class="ds">ウェリントン</div></div></button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3A3028,#1E1A16)">👞<span class="fit">90%</span></div>
+        <div class="meta"><div class="nm">レザーシューズ</div><div class="ds">プレーントゥ</div></div></button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STYLE ============ -->
+<div class="screen" id="s-style">
+  <div class="hd"><div><div class="sub">Recommendation</div><h1>あなたに似合うもの</h1></div></div>
+  <div class="body">
+    <div class="chips">
+      <button class="chip on" onclick="pick(this)">すべて</button>
+      <button class="chip" onclick="pick(this)">トップス</button>
+      <button class="chip" onclick="pick(this)">ボトムス</button>
+      <button class="chip" onclick="pick(this)">アウター</button>
+      <button class="chip" onclick="pick(this)">シューズ</button>
+      <button class="chip" onclick="pick(this)">アクセサリー</button>
+      <button class="chip" onclick="pick(this)">メガネ</button>
+      <button class="chip" onclick="pick(this)">髪型</button>
+    </div>
+
+    <div class="items">
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#2E3A4A,#1A222E)">👔<span class="fit">98%</span></div>
+        <div class="meta"><div class="nm">オックスフォードシャツ</div><div class="ds">ハリ素材 × 直線的な襟元</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3E362C,#241F19)">👖<span class="fit">95%</span></div>
+        <div class="meta"><div class="nm">テーパードパンツ</div><div class="ds">センタープレスで縦を強調</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#4A3A2E,#28201A)">🧥<span class="fit">92%</span></div>
+        <div class="meta"><div class="nm">ステンカラーコート</div><div class="ds">キャメル / 膝上丈</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3A3028,#1E1A16)">👞<span class="fit">90%</span></div>
+        <div class="meta"><div class="nm">レザーシューズ</div><div class="ds">ソール厚めのプレーントゥ</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#4A4030,#26211A)">⌚️<span class="fit">94%</span></div>
+        <div class="meta"><div class="nm">腕時計</div><div class="ds">ゴールド × レザーベルト</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#38323C,#1C191F)">👓<span class="fit">89%</span></div>
+        <div class="meta"><div class="nm">メガネ</div><div class="ds">ウェリントン / ブラウン</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#2E3630,#181C19)">🧢<span class="fit">86%</span></div>
+        <div class="meta"><div class="nm">キャップ / ハット</div><div class="ds">浅めのクラウン / つば直線</div></div>
+      </button>
+      <button class="item" onclick="openSheet()">
+        <div class="ph" style="background:linear-gradient(150deg,#3C3228,#1F1A15)">💇<span class="fit">91%</span></div>
+        <div class="meta"><div class="nm">髪型</div><div class="ds">センターパート / 2ブロック</div></div>
+      </button>
+    </div>
+
+    <div class="sechd"><h2>避けたほうがいいもの</h2><span>NG List</span></div>
+    <div class="glass card">
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">🚫</div>
+        <div class="tx"><b>オーバーサイズのスウェット</b><span>上半身の厚みが強調され、着ぶくれして見えます</span></div></div>
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">🚫</div>
+        <div class="tx"><b>薄手のとろみ素材</b><span>体のラインを拾い、肉感が出てしまいます</span></div></div>
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">🚫</div>
+        <div class="tx"><b>重ね着・レイヤード</b><span>厚みが増して重心が上がります</span></div></div>
+      <div class="li"><div class="ic" style="background:rgba(255,90,90,.13)">🚫</div>
+        <div class="tx"><b>純白・パステル・ビビッドな青</b><span>イエベ秋の肌には顔色が沈んで見えます</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TRY ON ============ -->
+<div class="screen" id="s-tryon">
+  <div class="hd"><div><div class="sub">Simulation</div><h1>試着</h1></div>
+    <div class="sp"></div><button class="iconbtn" onclick="toast('生成AI試着は設定でAPIキーを登録すると有効になります')">✨</button></div>
+  <div class="body">
+    <div class="chips">
+      <button class="chip on" onclick="pick(this)">アバター</button>
+      <button class="chip" onclick="pick(this)">写真に重ねる</button>
+      <button class="chip" onclick="pick(this)">AI試着 🔒</button>
+    </div>
+
+    <div class="stage">
+      <svg viewBox="0 0 260 400" id="ava">
+        <defs>
+          <linearGradient id="gTop" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3C4C60"/><stop offset="1" stop-color="#26313D"/></linearGradient>
+          <linearGradient id="gBot" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#3A342C"/><stop offset="1" stop-color="#221E19"/></linearGradient>
+        </defs>
+        <ellipse cx="130" cy="378" rx="62" ry="9" fill="rgba(0,0,0,.45)"/>
+        <!-- 頭 -->
+        <ellipse cx="130" cy="46" rx="25" ry="30" fill="#5A4C42"/>
+        <path d="M105 40 Q130 14 155 40 Q152 22 130 20 Q108 22 105 40Z" fill="#2E2721"/>
+        <!-- 首 -->
+        <rect x="121" y="70" width="18" height="16" fill="#4E4239"/>
+        <!-- トップス -->
+        <path id="top" d="M92 86 L118 80 Q130 90 142 80 L168 86 Q176 92 178 106 L172 146 L168 210 L92 210 L88 146 L82 106 Q84 92 92 86Z" fill="url(#gTop)"/>
+        <path d="M118 80 Q130 106 142 80 L136 78 Q130 96 124 78Z" fill="#1A222C"/>
+        <!-- 袖 -->
+        <path d="M92 86 L82 106 L74 168 L88 172 L96 112Z" fill="url(#gTop)"/>
+        <path d="M168 86 L178 106 L186 168 L172 172 L164 112Z" fill="url(#gTop)"/>
+        <!-- 手 -->
+        <ellipse cx="81" cy="182" rx="8" ry="11" fill="#4E4239"/>
+        <ellipse cx="179" cy="182" rx="8" ry="11" fill="#4E4239"/>
+        <!-- ボトムス -->
+        <path id="bot" d="M92 208 L168 208 L164 300 L158 356 L134 356 L130 268 L126 356 L102 356 L96 300Z" fill="url(#gBot)"/>
+        <line x1="112" y1="216" x2="112" y2="350" stroke="rgba(255,255,255,.09)" stroke-width="1.5"/>
+        <line x1="148" y1="216" x2="148" y2="350" stroke="rgba(255,255,255,.09)" stroke-width="1.5"/>
+        <!-- 靴 -->
+        <path d="M100 356 L128 356 L130 370 L96 370 Q94 360 100 356Z" fill="#241C16"/>
+        <path d="M132 356 L160 356 L164 370 L130 370 Q130 360 132 356Z" fill="#241C16"/>
+      </svg>
+      <div style="position:absolute;top:12px;left:12px;font-size:9.5px;font-weight:800;letter-spacing:.1em;
+        padding:6px 10px;border-radius:9px;background:rgba(8,8,12,.6);backdrop-filter:blur(10px);color:var(--accent)">
+        166cm / 70kg / ストレート
+      </div>
+    </div>
+
+    <div class="glass ctrl"><span class="nm">トップス</span>
+      <input type="range" min="0" max="5" value="1" oninput="setTop(this.value)"></div>
+    <div class="glass ctrl"><span class="nm">ボトムス</span>
+      <input type="range" min="0" max="5" value="2" oninput="setBot(this.value)"></div>
+    <div class="glass ctrl"><span class="nm">着丈</span>
+      <input type="range" min="0" max="100" value="42" oninput="toast('着丈シミュレーション：'+this.value)"></div>
+
+    <div class="glass card" style="margin-top:6px">
+      <div class="lbl">この組み合わせの評価</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin:6px 0 10px">
+        <div style="font-size:34px;font-weight:800;color:var(--accent)">94</div>
+        <div style="font-size:12px;color:var(--ink-3);font-weight:600">/ 100 — 相性◎</div>
+      </div>
+      <p class="p" style="font-size:12px">ネイビー×チャコールの濃淡でIラインが成立。イエベ秋の落ち着いたトーンとも調和しています。靴をブラウンにするとさらに統一感が出ます。</p>
+    </div>
+
+    <div class="glass card" style="margin-top:11px;display:flex;gap:12px;align-items:flex-start">
+      <div style="font-size:20px">✨</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:5px">フォトリアルAI試着（Phase 3）</div>
+        <div style="font-size:11.5px;color:var(--ink-3);line-height:1.75">
+          設定でfal.aiのAPIキーを登録すると、自分の写真にこの服を自然に合成できます。1枚あたり約7〜11円。
+        </div>
+        <button class="btn ghost sm" style="margin-top:11px;width:auto;padding:9px 15px" onclick="go('s-set')">設定を開く</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PROGRESS ============ -->
+<div class="screen" id="s-prog">
+  <div class="hd"><div><div class="sub">Body Progress</div><h1>体型の変化</h1></div>
+    <div class="sp"></div><button class="iconbtn" onclick="toast('体重を記録します')">＋</button></div>
+  <div class="body">
+    <div class="glass card fadein" style="padding:20px">
+      <div class="lbl">現在の体重</div>
+      <div class="big">70.2<small>kg</small></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <span class="tag">− 2.8kg / 3ヶ月</span><span class="tag">目標まで 10.2kg</span>
+      </div>
+      <svg viewBox="0 0 300 100" style="width:100%;height:auto;margin-top:20px;overflow:visible">
+        <defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--accent)" stop-opacity=".32"/>
+          <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>
+        <path d="M0 18 L50 24 L100 20 L150 42 L200 50 L250 58 L300 62 L300 100 L0 100Z" fill="url(#gl)"/>
+        <polyline points="0,18 50,24 100,20 150,42 200,50 250,58 300,62" fill="none"
+          stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="300" cy="62" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="3"/>
+        <line x1="0" y1="88" x2="300" y2="88" stroke="rgba(255,255,255,.16)" stroke-width="1" stroke-dasharray="4 4"/>
+        <text x="0" y="83" fill="rgba(242,242,245,.4)" font-size="9" font-weight="600">目標 60kg</text>
+      </svg>
+    </div>
+
+    <div class="sechd"><h2>提案の変化</h2><span>Adaptive</span></div>
+    <div class="glass card fadein d1">
+      <p class="p" style="margin-bottom:16px">
+        体重の変化に応じて、推奨されるシルエットが自動で切り替わります。同じ骨格ストレートでも、BMIによって「似合う服」は変わります。
+      </p>
+      <div class="ms done"><div class="dot"></div><div class="t">73kg — BMI 26.5<small>縦のIライン最優先／濃色でシェイプ</small></div></div>
+      <div class="ms now"><div class="dot"></div><div class="t">70kg — BMI 25.4 ← 現在<small>ジャストフィット解禁／中間色OK</small></div></div>
+      <div class="ms"><div class="dot"></div><div class="t">65kg — BMI 23.6<small>タックインが決まる／明るい色も可</small></div></div>
+      <div class="ms"><div class="dot"></div><div class="t">60kg — BMI 21.8 🎯<small>細身シルエット解禁／レイヤードも成立</small></div></div>
+    </div>
+
+    <div class="glass card fadein d2" style="margin-top:11px;display:flex;gap:12px;align-items:center">
+      <div style="font-size:22px">🎁</div>
+      <div style="font-size:12px;color:var(--ink-2);line-height:1.7">
+        あと <b style="color:var(--accent)">5.2kg</b> で「タックイン解禁」バッジ。提案アイテムが12点追加されます。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="screen" id="s-set">
+  <div class="hd"><button class="iconbtn" onclick="back('s-home')">←</button>
+    <div><div class="sub">Settings</div><h1>設定</h1></div></div>
+  <div class="body">
+    <div class="sechd" style="margin-top:6px"><h2>AI試着</h2><span>Phase 3</span></div>
+    <div class="glass card">
+      <div class="field" style="margin-bottom:9px">
+        <label>fal.ai API キー</label>
+        <input class="inp" type="password" placeholder="fal_xxxxxxxxxxxxxxxx">
+      </div>
+      <div style="font-size:11px;color:var(--ink-3);line-height:1.75;margin-bottom:14px">
+        キーは端末内のローカルストレージにのみ保存され、外部に送信されません。<br>
+        Kling Kolors v1.5：約 $0.07（10円）／枚
+      </div>
+      <button class="btn sm" onclick="toast('モックアップです。実装版でAI試着が有効になります')">有効化する</button>
+    </div>
+
+    <div class="sechd"><h2>表示</h2><span>Display</span></div>
+    <div class="glass card">
+      <div style="display:flex;align-items:center;gap:13px;padding:6px 0 16px">
+        <div style="flex:1"><div style="font-size:13.5px;font-weight:700">パーソナルカラー連動UI</div>
+          <div style="font-size:11px;color:var(--ink-3);margin-top:4px">診断結果に応じてアプリの配色が変化</div></div>
+        <button class="sw2 on" onclick="this.classList.toggle('on')"><i></i></button>
+      </div>
+      <div style="font-size:10.5px;letter-spacing:.11em;color:var(--ink-3);font-weight:700;margin-bottom:10px">テーマをプレビュー</div>
+      <div style="display:flex;gap:8px">
+        <button class="sw" style="background:#D98E5F;width:44px;height:44px" onclick="theme('#D98E5F','#8C6A4A','#1A0F08')"></button>
+        <button class="sw" style="background:#7FA8D9;width:44px;height:44px" onclick="theme('#7FA8D9','#4A6A8C','#06101A')"></button>
+        <button class="sw" style="background:#8FD9A8;width:44px;height:44px" onclick="theme('#8FD9A8','#4A8C64','#06180E')"></button>
+        <button class="sw" style="background:#D97FA8;width:44px;height:44px" onclick="theme('#D97FA8','#8C4A64','#1A0610')"></button>
+        <button class="sw" style="background:#C9B8E8;width:44px;height:44px" onclick="theme('#C9B8E8','#7A6A9C','#100A1A')"></button>
+      </div>
+    </div>
+
+    <div class="sechd"><h2>データ</h2><span>Privacy</span></div>
+    <div class="glass card">
+      <div class="li"><div class="ic">📱</div><div class="tx"><b>端末内保存のみ</b><span>写真・診断結果はローカルストレージに保存され、外部サーバーには一切送信されません</span></div></div>
+      <div class="li"><div class="ic">🔄</div><div class="tx"><b>診断をやり直す</b><span>骨格・カラー・顔タイプを再診断します</span></div></div>
+      <div class="li"><div class="ic">🗑</div><div class="tx"><b>すべてのデータを削除</b><span>写真と診断結果を完全に消去します</span></div></div>
+    </div>
+    <div style="text-align:center;padding:30px 0 10px;font-size:10.5px;color:var(--ink-3);letter-spacing:.12em">
+      MIRROR v0.1 — MOCKUP
+    </div>
+  </div>
+</div>
+
+<!-- ============ SHEET ============ -->
+<div class="sheet" id="sheet">
+  <div class="bd" onclick="closeSheet()"></div>
+  <div class="pn">
+    <button class="iconbtn" onclick="closeSheet()" style="position:absolute;top:14px;right:16px;z-index:5;background:rgba(8,8,12,.7)">✕</button>
+    <div class="grab" onclick="closeSheet()" style="padding:6px 0;width:80px;margin:0 auto 14px;background:transparent">
+      <div style="width:38px;height:4px;border-radius:2px;background:rgba(255,255,255,.22);margin:0 auto"></div></div>
+    <div style="height:150px;border-radius:20px;background:linear-gradient(150deg,#2E3A4A,#1A222E);
+      display:grid;place-items:center;font-size:52px;margin-bottom:20px;position:relative">👔
+      <span class="fit" style="position:absolute;top:12px;right:12px">MATCH 98%</span></div>
+    <div style="font-size:21px;font-weight:800;margin-bottom:7px">オックスフォードシャツ</div>
+    <div style="font-size:12.5px;color:var(--ink-3);margin-bottom:18px">ネイビー / ジャストフィット / ボタンダウン</div>
+
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px">
+      <span class="tag">ハリ素材</span><span class="tag">Iライン</span><span class="tag">直線襟</span><span class="tag">イエベ秋</span>
+    </div>
+
+    <div class="glass card" style="margin-bottom:20px">
+      <div class="lbl">なぜ似合うのか</div>
+      <p class="p" style="margin-top:6px;font-size:12.5px">
+        骨格ストレートは上半身に厚みがあるため、ハリのあるオックスフォード生地が体のラインを拾わず、きれいなIラインを作ります。
+        顔タイプがクールソフト（大人顔×直線）なので、丸首より直線的な襟元が調和します。
+        色は純白ではなくネイビーを選ぶことで、イエベ秋の肌に沈まず馴染みます。
+      </p>
+    </div>
+
+    <div class="sechd" style="margin-top:0"><h2>購入する</h2><span>検索クエリ自動生成</span></div>
+    <div style="font-size:11px;color:var(--ink-3);background:rgba(255,255,255,.04);padding:11px 13px;
+      border-radius:11px;margin-bottom:13px;font-family:ui-monospace,monospace;line-height:1.6">
+      メンズ オックスフォードシャツ ネイビー ボタンダウン ジャストフィット
+    </div>
+    <a class="shop" href="https://zozo.jp/search/?p_keyv=%E3%83%A1%E3%83%B3%E3%82%BA%20%E3%82%AA%E3%83%83%E3%82%AF%E3%82%B9%E3%83%95%E3%82%A9%E3%83%BC%E3%83%89%E3%82%B7%E3%83%A3%E3%83%84%20%E3%83%8D%E3%82%A4%E3%83%93%E3%83%BC" target="_blank" rel="noopener">
+      <div class="lg" style="background:#111;color:#fff;border:1px solid rgba(255,255,255,.2)">Z</div>
+      <div class="tt">ZOZOTOWN<small>Safariで検索結果を開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://www.uniqlo.com/jp/ja/search?q=%E3%82%AA%E3%83%83%E3%82%AF%E3%82%B9%E3%83%95%E3%82%A9%E3%83%BC%E3%83%89%E3%82%B7%E3%83%A3%E3%83%84" target="_blank" rel="noopener">
+      <div class="lg" style="background:#FF0000;color:#fff">U</div>
+      <div class="tt">UNIQLO<small>Safariで検索結果を開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://www.gu-global.com/jp/ja/search?q=%E3%82%AA%E3%83%83%E3%82%AF%E3%82%B9%E3%83%95%E3%82%A9%E3%83%BC%E3%83%89%E3%82%B7%E3%83%A3%E3%83%84" target="_blank" rel="noopener">
+      <div class="lg" style="background:#E60012;color:#fff">G</div>
+      <div class="tt">GU<small>Safariで検索結果を開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://search.rakuten.co.jp/search/mall/%E3%83%A1%E3%83%B3%E3%82%BA+%E3%82%AA%E3%83%83%E3%82%AF%E3%82%B9%E3%83%95%E3%82%A9%E3%83%BC%E3%83%89%E3%82%B7%E3%83%A3%E3%83%84/" target="_blank" rel="noopener">
+      <div class="lg" style="background:#BF0000;color:#fff">R</div>
+      <div class="tt">楽天市場<small>Safariで検索結果を開く</small></div><div class="ar">↗</div></a>
+    <a class="shop" href="https://www.amazon.co.jp/s?k=%E3%83%A1%E3%83%B3%E3%82%BA+%E3%82%AA%E3%83%83%E3%82%AF%E3%82%B9%E3%83%95%E3%82%A9%E3%83%BC%E3%83%89%E3%82%B7%E3%83%A3%E3%83%84+%E3%83%8D%E3%82%A4%E3%83%93%E3%83%BC" target="_blank" rel="noopener">
+      <div class="lg" style="background:#FF9900;color:#111">a</div>
+      <div class="tt">Amazon<small>Safariで検索結果を開く</small></div><div class="ar">↗</div></a>
+
+    <div style="display:flex;gap:9px;margin-top:14px">
+      <button class="heart" onclick="fav(this)">♡</button>
+      <button class="btn" style="flex:1;margin:0" onclick="closeSheet();nav('s-tryon',2)">このアイテムで試着する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TAB BAR ============ -->
+<div class="tabbar hide" id="tabbar">
+  <button class="tab on" onclick="nav('s-home',0)"><span class="ic">◆</span>PORTAL</button>
+  <button class="tab" onclick="nav('s-style',1)"><span class="ic">✦</span>STYLE</button>
+  <button class="tab" onclick="nav('s-tryon',2)"><span class="ic">🪞</span>TRY ON</button>
+  <button class="tab" onclick="nav('s-prog',3)"><span class="ic">◇</span>BODY</button>
+</div>
+
+<div id="toast"></div>
+</div>
+
+<script>
+const MAIN = ['s-home','s-style','s-tryon','s-prog'];
+let cur = 's-splash';
+
+function go(id){
+  const a = document.getElementById(cur), b = document.getElementById(id);
+  if(!b || id===cur) return;
+  a.classList.remove('active'); a.classList.add('behind');
+  setTimeout(()=>a.classList.remove('behind'), 440);
+  b.classList.add('active');
+  b.querySelector('.body') && (b.querySelector('.body').scrollTop = 0);
+  cur = id;
+  document.getElementById('tabbar').classList.toggle('hide', !MAIN.includes(id));
+  if(navigator.vibrate) navigator.vibrate(8);
+}
+function back(id){
+  const a = document.getElementById(cur), b = document.getElementById(id);
+  a.style.transition='transform .4s cubic-bezier(.32,.72,0,1),opacity .3s';
+  a.classList.remove('active');
+  b.classList.remove('behind'); b.classList.add('active');
+  cur = id;
+  document.getElementById('tabbar').classList.toggle('hide', !MAIN.includes(id));
+  if(navigator.vibrate) navigator.vibrate(8);
+}
+function nav(id, i){
+  go(id);
+  document.querySelectorAll('#tabbar .tab').forEach((t,n)=>t.classList.toggle('on', n===i));
+}
+function pick(el){ el.parentNode.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); if(navigator.vibrate)navigator.vibrate(6); }
+function pick2(el){ el.parentNode.querySelectorAll('.opt').forEach(c=>c.classList.remove('on')); el.classList.add('on'); if(navigator.vibrate)navigator.vibrate(6); }
+
+function runReveal(){
+  const c = document.getElementById('rc');
+  c.style.strokeDashoffset = 377;
+  setTimeout(()=>c.style.strokeDashoffset = 60, 120);
+}
+
+const TOPS = ['#8E9AA8','#3C4C60','#5A6B4A','#7A4438','#3A3A3E','#B49B78'];
+const BOTS = ['#4A5568','#2A2E36','#3A342C','#1E1E22','#5A5040','#6B4A38'];
+function setTop(v){
+  const g = document.querySelector('#gTop');
+  g.children[0].setAttribute('stop-color', TOPS[v]);
+  g.children[1].setAttribute('stop-color', shade(TOPS[v],-28));
+}
+function setBot(v){
+  const g = document.querySelector('#gBot');
+  g.children[0].setAttribute('stop-color', BOTS[v]);
+  g.children[1].setAttribute('stop-color', shade(BOTS[v],-28));
+}
+function shade(hex,p){
+  const n = parseInt(hex.slice(1),16);
+  const r = Math.max(0,Math.min(255,(n>>16)+p)), gg = Math.max(0,Math.min(255,((n>>8)&255)+p)), b = Math.max(0,Math.min(255,(n&255)+p));
+  return '#'+((1<<24)+(r<<16)+(gg<<8)+b).toString(16).slice(1);
+}
+
+function theme(a,a2,ink){
+  document.documentElement.style.setProperty('--accent',a);
+  document.documentElement.style.setProperty('--accent-2',a2);
+  document.documentElement.style.setProperty('--accent-ink',ink);
+  toast('パーソナルカラー連動UI：配色を切り替えました');
+}
+
+const OUTFITS=[
+ {a:['linear-gradient(150deg,#2E3A4A,#1A222E)','👔'],b:['linear-gradient(150deg,#3E362C,#241F19)','👖'],c:['linear-gradient(150deg,#3A3028,#1E1A16)','👞'],
+  s:94,t:'相性◎ — ネイビー×チャコールの濃淡でIラインが成立'},
+ {a:['linear-gradient(150deg,#4A3A2E,#28201A)','🧥'],b:['linear-gradient(150deg,#2E3038,#16181C)','👖'],c:['linear-gradient(150deg,#3A3028,#1E1A16)','👞'],
+  s:91,t:'アースカラーの重ね — イエベ秋の得意色で統一'},
+ {a:['linear-gradient(150deg,#3A3E30,#1C1E18)','👕'],b:['linear-gradient(150deg,#3E362C,#241F19)','👖'],c:['linear-gradient(150deg,#38322A,#1C1814)','👟'],
+  s:87,t:'細ストライプ × オリーブ — 今季トレンドを取り込み'},
+ {a:['linear-gradient(150deg,#4A4038,#241E1A)','👔'],b:['linear-gradient(150deg,#2E3038,#16181C)','👖'],c:['linear-gradient(150deg,#3A3028,#1E1A16)','👞'],
+  s:89,t:'ブラウン × ネイビー — 落ち着いた大人顔に最適'}
+];
+let oi=0;
+function shuffle(){
+  oi=(oi+1)%OUTFITS.length; const o=OUTFITS[oi];
+  [['f1',o.a],['f2',o.b],['f3',o.c]].forEach(([id,v])=>{
+    const el=document.getElementById(id);
+    el.style.background=v[0];
+    el.firstChild.nodeValue=v[1];
+    el.animate([{opacity:0,transform:'scale(.94)'},{opacity:1,transform:'none'}],{duration:340,easing:'cubic-bezier(.32,.72,0,1)'});
+  });
+  document.getElementById('score').textContent=o.s;
+  document.getElementById('scoretx').textContent=o.t;
+  if(navigator.vibrate) navigator.vibrate(10);
+}
+function fav(el){ el.classList.toggle('on'); el.textContent = el.classList.contains('on')?'♥':'♡';
+  toast(el.classList.contains('on')?'保存しました':'保存を解除しました'); if(navigator.vibrate)navigator.vibrate(8); }
+
+function openSheet(){ document.getElementById('sheet').classList.add('on'); if(navigator.vibrate)navigator.vibrate(8); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); }
+
+let tt;
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(()=>t.classList.remove('on'), 2400);
+}
+
+document.addEventListener('gesturestart', e=>e.preventDefault());
+</script>
+</body>
+</html>
